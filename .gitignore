@@ -1,0 +1,27 @@
+# Coldline
+# File: .gitignore
+# Component: Repository hygiene
+# Purpose: Exclude local tools, caches, and runtime state from commits.
+# Interacts With: Git and local development tools
+# Sprint/Task: Sprint 2 — Project 2
+# Concepts: Clean working tree
+# Tools: Git
+
+.env
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.tools/
+.venv/
+**/__pycache__/
+*.py[cod]
+
+# The two retained benchmark reports are required run artifacts, not scratch
+# output: the assessed checks grade the recorded answers against them, and the
+# protected job in CI needs them too. So they are committed, and only the rest
+# of the directory is ignored. They are generated - the harness writes them and
+# nothing else should - which is why they are listed separately from the
+# student-editable paths in docs/student/task-2-7-contract.md.
+.benchmark/*
+!.benchmark/baseline.json
+!.benchmark/experiment.json

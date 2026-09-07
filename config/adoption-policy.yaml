@@ -1,0 +1,77 @@
+# Coldline - Task 2.7
+# File: config/adoption-policy.yaml
+# Component: Published adoption decision rule
+# Purpose: Carry the constants the published keep-or-revert rule is evaluated with.
+# Interacts With: tests/benchmark/policy.py and the experiment checks
+# Sprint/Task: Sprint 2 - Project 2 / Task 2.7
+# Concepts: Published decision rule, calibrated constants, release gate
+# Tools: YAML
+
+# This file is supplied, not student-editable, and the checks read it rather
+# than any value written into a test. The rule below is fixed; only its two
+# constants are calibrated, and they are calibrated by the benchmark owner
+# against the supported environment profiles, never by a student and never by
+# whoever happens to be running the harness.
+#
+# The rule, with R0/R1 the baseline and experiment Recall@K at the same
+# evaluation cutoff and L0/L1 their p95 latencies in milliseconds:
+#
+#   keep = (R1 >= R0) and (L1 <= B) and ((R1 > R0) or ((L0 - L1) > T))
+#
+# and revert otherwise, for a comparison whose two reports are valid. Equality
+# with the budget B is allowed; equality with the tolerance T is not enough. A
+# recall increase still has to meet the budget, and a recall loss is never
+# accepted. It is a bounded teaching policy, not a claim about the best
+# production decision in every setting.
+#
+# B and T are NOT PUBLISHED YET. Until they are, `published` stays false and
+# every check that would apply the rule fails and says so. That is deliberate:
+# a decision graded against an invented budget would teach a number nobody
+# stands behind, and defaulting an ungradeable comparison to `revert` would
+# award the answer that happens to be more common. Neither is acceptable, so
+# the Task blocks instead.
+
+schema_version: 1
+published: false
+
+# B: the positive p95 latency budget the experiment arm must meet, in the units
+# below. A number once published.
+latency_budget_ms: null
+# T: the positive latency tolerance a p95 improvement must exceed before it can
+# carry a keep decision on its own, in the same units. A number once published.
+latency_tolerance_ms: null
+
+units: milliseconds
+
+# The published calculation and rounding convention. Both arms' figures are
+# compared, and matched against a recorded answer, at exactly this precision:
+# a difference below the last published place is not a difference.
+rounding:
+  recall_places: 3
+  latency_places: 1
+  convention: half_even
+  # Python's round() is half-to-even, which is what the harness and the checks
+  # both use. Naming it here keeps a recorded answer and a report from
+  # disagreeing on a value that sits exactly on a boundary.
+
+# What the benchmark owner records when B and T are published. Every field is
+# part of the release gate; an entry that names no procedure and no observed
+# variability is not a calibration.
+calibration:
+  # CME and CI Platform Engineering, per ADR009-R04.
+  owners: []
+  # How B and T were derived from repeated runs, in enough detail to repeat.
+  procedure: null
+  # The supported environment profiles the runs were made on.
+  environment_profiles: []
+  # The spread the repeated runs actually showed, which is what T has to clear.
+  observed_variability: null
+  # At least one keep case and one revert case, qualified end to end against
+  # the retained reports before release.
+  qualified_cases: []
+
+# Release gate, per ADR009-R01 and ADR009-R04. While this is false the lesson
+# stays draft and this Task must not be described as release-ready.
+qualification:
+  status: proposed
+  confirmed_by_benchmark_owner: false

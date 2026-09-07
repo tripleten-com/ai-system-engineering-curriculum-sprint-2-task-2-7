@@ -1,0 +1,92 @@
+# Coldline - Task 2.7
+# File: submission.yaml
+# Component: Student answer sheet
+# Purpose: Record one controlled retrieval experiment and its adoption decision.
+# Interacts With: Submission schema, public verifier, experiment checks
+# Sprint/Task: Sprint 2 - Project 2 / Task 2.7
+# Concepts: Controlled experiment, deterministic evaluation, evidence-supported decisions
+# Tools: YAML
+
+# Complete submission.yaml from the evidence sources named beside each answer group.
+# Keep the supplied keys; replace empty strings using each field's stated type.
+# Empty values and placeholder text fail verification.
+# Use submission-sample.yaml for format only; do not copy its fictional values.
+# Do not include secrets, personal data, or local absolute paths.
+
+answers:
+  # Task 2.7 — Step 2: Controlled retrieval experiment
+  # Tune exactly one parameter and measure quality/latency shifts.
+  # Change one parameter in config/student/retrieval.yaml; keep the other equal
+  # to config/retrieval-baseline.yaml. Measure both configurations on the same
+  # supplied query set. Source: docs/student/task-2-7-contract.md.
+  #
+  # Parameter options (use exact strings):
+  # - top_k: The number of candidates returned after combining the search rankings.
+  # - fusion_weight: The dense search arm's weight when combining rankings; the
+  #   sparse arm carries the remainder. Dense search uses embedding vectors;
+  #   sparse search uses text matching.
+  #
+  # Step 2: choose the one parameter above that differs from the baseline.
+  selected_parameter: ""
+  # Step 2: enter its value from config/student/retrieval.yaml as a YAML number.
+  # For top_k, use an integer from 1 to 12; for fusion_weight, a number from 0 to 1.
+  parameter_value: ""
+
+  # Task 2.7 — Step 1: Controlled retrieval experiment
+  # Establish baseline metrics on golden evaluation set.
+  # Capture the Step 1 baseline with `poe benchmark-baseline` BEFORE changing
+  # anything, then the Step 2 experiment with `poe benchmark-experiment`. Each
+  # command retains one report - .benchmark/baseline.json and
+  # .benchmark/experiment.json - and both are committed with your submission.
+  # Source: docs/student/task-2-7-contract.md, "The two retained reports" and
+  # "How latency is measured".
+  # Recall@K is the fraction of labelled relevant chunks found in the returned
+  # results, averaged over the supplied query set. It must match to three decimals.
+  # p95 is the latency at or below which 95% of measured requests finish. Read
+  # `latency_p95_ms` from the retained report - not p50, not p99. Every value
+  # here is compared with that report exactly, at one decimal place, because it
+  # is compared with the report you captured rather than with a measurement
+  # taken at grading time.
+  #
+  # Step 1: baseline recall@k column; number from 0 to 1, to three decimal places.
+  baseline_recall_at_k: ""
+  # Step 2: experiment recall@k column; number from 0 to 1, to three decimal places.
+  experiment_recall_at_k: ""
+
+  # Step 1: baseline p95 column; nonnegative number in milliseconds, without "ms".
+  baseline_latency_ms: ""
+  # Step 2: experiment p95 column; nonnegative number in milliseconds, without "ms".
+  experiment_latency_ms: ""
+
+  # Task 2.7 — Step 3: Controlled retrieval experiment
+  # Analyze judge disagreement, author regression test, and decide.
+  # Use `poe compare` and docs/student/task-2-7-contract.md to compare changes in
+  # deterministic Recall@K and cached judge relevance. Cached judge scores are
+  # supplied comparison evidence; they do not determine the adoption decision.
+  #
+  # Agreement options (use exact strings; movement uses the published resolution):
+  # - agreement: Both signals moved in the same direction.
+  # - disagreement: Both signals moved in opposite directions.
+  # - mixed_or_no_change: Neither signal moved, or only one did.
+  #
+  # Choose one classification above from the comparison output.
+  agreement_classification: ""
+
+  # Adoption options (use exact strings):
+  # - keep: Retain the experimental retrieval configuration.
+  # - revert: Restore the baseline retrieval configuration.
+  # `poe compare` reads your two retained reports and applies the one published
+  # rule in config/adoption-policy.yaml. There is exactly one correct decision
+  # for a valid comparison; it is not a judgment call.
+  #
+  #   keep = (R1 >= R0) and (L1 <= B) and ((R1 > R0) or ((L0 - L1) > T))
+  #
+  # RELEASE GATE. The latency budget B and tolerance T are calibrated and
+  # published by the benchmark owner, and they are NOT published yet. Until they
+  # are, `poe compare` prints BLOCKED here and the check on this field fails for
+  # every submission, correct or not. That is a gate on the Task, not a fault in
+  # your work, and nothing substitutes a default in its place.
+  #
+  # Record the decision the rule gives for your own figures, and say in your
+  # pull request which constants you assumed.
+  adoption_decision: ""

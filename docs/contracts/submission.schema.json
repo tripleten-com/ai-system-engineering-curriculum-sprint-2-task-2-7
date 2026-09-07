@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Coldline Task 2.7 public answer contract. Eight direct answers describe one controlled experiment: which approved parameter was tuned and to what, the deterministic Recall@K and p95 latency of both arms, how the deterministic metric and the cached judge evidence moved relative to each other, and the adoption decision. The automated checks re-measure the running system and compare every recorded value against that measurement; the decision is checked against the published adoption support policy in docs/student/task-2-7-contract.md.",
+  "title": "Coldline Task 2.7 answers",
+  "description": "One controlled retrieval experiment, recorded from benchmark output.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "answers"
+  ],
+  "properties": {
+    "answers": {
+      "description": "The only top-level answer mapping accepted by the public verifier.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selected_parameter",
+        "parameter_value",
+        "baseline_recall_at_k",
+        "experiment_recall_at_k",
+        "baseline_latency_ms",
+        "experiment_latency_ms",
+        "agreement_classification",
+        "adoption_decision"
+      ],
+      "properties": {
+        "selected_parameter": {
+          "description": "Which approved retrieval parameter was tuned in config/student/retrieval.yaml. Exactly one may differ from config/retrieval-baseline.yaml.",
+          "enum": [
+            "top_k",
+            "fusion_weight"
+          ]
+        },
+        "parameter_value": {
+          "description": "The experimental value assigned to that parameter, exactly as it appears in config/student/retrieval.yaml. Bounded per parameter below: top_k is a whole number from 1 to 12, the fixed candidate pool each arm fetches before fusion; fusion_weight is a number from 0.0 to 1.0.",
+          "type": "number"
+        },
+        "baseline_recall_at_k": {
+          "description": "Mean deterministic Recall@K of the baseline arm over the golden evaluation set, to three decimal places, from `poe benchmark`.",
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "experiment_recall_at_k": {
+          "description": "Mean deterministic Recall@K of the experimental arm over the same golden evaluation set, to three decimal places, from `poe benchmark`.",
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "baseline_latency_ms": {
+          "description": "The baseline arm's 95th-percentile query latency in milliseconds, from the p95 column of `poe benchmark`. Not the median and not seconds.",
+          "type": "number",
+          "minimum": 0.0
+        },
+        "experiment_latency_ms": {
+          "description": "The experimental arm's 95th-percentile query latency in milliseconds, from the p95 column of `poe benchmark`.",
+          "type": "number",
+          "minimum": 0.0
+        },
+        "agreement_classification": {
+          "description": "How the authoritative deterministic metric and the comparison-only cached judge relevance moved relative to each other: `agreement` when both moved the same way, `disagreement` when they moved in opposite directions, `mixed_or_no_change` when neither moved or only one did. From `poe compare`.",
+          "enum": [
+            "agreement",
+            "disagreement",
+            "mixed_or_no_change"
+          ]
+        },
+        "adoption_decision": {
+          "description": "Whether to retain the experimental configuration (`keep`) or restore the baseline (`revert`). Checked against the published adoption support policy: where the recorded evidence is one-sided, only the decision it points to is accepted; where the arms trade off or nothing moved, either decision is accepted.",
+          "enum": [
+            "keep",
+            "revert"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "$comment": "top_k is a candidate count, bounded by the fixed candidate pool.",
+          "if": {
+            "properties": {
+              "selected_parameter": {
+                "const": "top_k"
+              }
+            },
+            "required": [
+              "selected_parameter"
+            ]
+          },
+          "then": {
+            "properties": {
+              "parameter_value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 12
+              }
+            }
+          }
+        },
+        {
+          "$comment": "fusion_weight is the dense arm's share of reciprocal-rank fusion.",
+          "if": {
+            "properties": {
+              "selected_parameter": {
+                "const": "fusion_weight"
+              }
+            },
+            "required": [
+              "selected_parameter"
+            ]
+          },
+          "then": {
+            "properties": {
+              "parameter_value": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

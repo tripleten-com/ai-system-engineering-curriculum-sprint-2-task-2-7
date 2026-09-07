@@ -1,0 +1,23 @@
+# Coldline - Task 2.7
+# File: config/student/retrieval.yaml
+# Component: Experimental retrieval configuration
+# Purpose: Hold the one parameter change this experiment tests.
+# Interacts With: tests/benchmark/config.py and the evaluation harness
+# Sprint/Task: Sprint 2 - Project 2 / Task 2.7
+# Concepts: Controlled experiment, single-variable change
+# Tools: YAML
+
+# Yours to edit, and the only configuration file you may change.
+#
+# It starts as an exact copy of config/retrieval-baseline.yaml. Change the value
+# of EXACTLY ONE parameter below, leave the other exactly as it is, and add or
+# remove nothing. Record which parameter you changed, and its new value, in
+# submission.yaml.
+retrieval:
+  # How many fused candidates the retriever returns. The upper bound is the
+  # fixed candidate pool each arm fetches before fusion, so a larger value
+  # could not be satisfied.
+  top_k: 3
+  # The weight the dense arm carries in reciprocal-rank fusion; the sparse arm
+  # carries the remainder. 0.0 is sparse only and 1.0 is dense only.
+  fusion_weight: 0.5
