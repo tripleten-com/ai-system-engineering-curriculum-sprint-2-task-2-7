@@ -105,7 +105,7 @@ without `--recapture`.
 
 **Both reports are committed.** They are required run artifacts, not scratch output: every numeric
 answer is graded against them at the published precision, `poe compare` reads them instead of
-re-measuring, and the protected job in CI reads them too. A missing or invalid report fails
+re-measuring, and the CMS grading integration reads them too. A missing or invalid report fails
 validation rather than becoming a decision. `docs/contracts/benchmark-report.schema.json` is the
 contract they are validated against, and `poe benchmark-reproduce` re-measures without touching
 them.
@@ -286,6 +286,14 @@ one extra query, so ordinary requests leave it off.
 Contract checks marked `runtime` need the running stack. `poe contract` skips them; `poe verify`
 and `poe runtime-contract` run them.
 
+## Submission checks
+
+Run `poe verify` locally before opening your student pull request. Public GitHub CI repeats
+the student checks. The course platform (CMS) runs the required protected grading separately
+and associates its results with your submission commit. A green template-export check, or a
+skipped student check on an `export/` branch, is not a passing grade. You do not configure
+GitHub grading secrets. Follow the Task lesson's instructor-review and progression policy.
+
 ## Task boundary
 
 Task 2.7 asks you to change **exactly one** approved retrieval parameter, measure both
@@ -338,8 +346,8 @@ your pull request.
 
 ## Operational limits
 
-This local system has no user authentication, authorization, TLS termination, or production secret
-store. A retrieval request states its own tenancy and clearance, so that context is an asserted
+This local system does not authenticate users, terminate TLS, or manage production secrets.
+A retrieval request states its own tenancy and clearance, so that context is an asserted
 identity rather than a verified one. The Compose PostgreSQL password and the LocalStack access keys
 are local-only non-secret credentials. Never place real credentials, personal data, or production
 records in this repository, including in `infra/corpus/`.

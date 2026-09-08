@@ -66,7 +66,7 @@ Each capture writes exactly one report, and the two paths are fixed:
 | `.benchmark/experiment.json` | `poe benchmark-experiment` | Your configuration, measured |
 
 **Commit both.** They are required run artifacts: every numeric answer is graded against them, and
-the protected job in CI reads them too. They are *generated*, not written by hand — the harness
+the CMS grading integration reads them too. They are *generated*, not written by hand — the harness
 produces them and nothing else should. That is why they are listed apart from the student-editable
 paths at the end of this page, and why `docs/contracts/benchmark-report.schema.json` publishes
 exactly what a valid report contains.
