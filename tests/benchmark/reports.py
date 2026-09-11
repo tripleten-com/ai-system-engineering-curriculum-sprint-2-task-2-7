@@ -313,9 +313,11 @@ def _validate_self_consistency(arm: str, document: dict[str, Any]) -> None:
         )
 
 
-def load(arm: str) -> RetainedReport:
+def load(arm: str, *, directory: Path | None = None) -> RetainedReport:
     """Return one validated retained report, or say exactly what is wrong with it."""
     path = report_path(arm)
+    if directory is not None:
+        path = directory / path.name
     if not path.is_file():
         raise ReportError(
             f"{path.name} is missing. Capture it with `poe benchmark-{arm}`; the checks grade "
@@ -333,13 +335,16 @@ def load(arm: str) -> RetainedReport:
     return RetainedReport(arm=arm, document=document)
 
 
-def load_pair() -> tuple[RetainedReport, RetainedReport]:
+def load_pair(*, directory: Path | None = None) -> tuple[RetainedReport, RetainedReport]:
     """Return both validated retained reports, checked as a comparable pair.
 
     Each report is valid on its own before this compares them, so a failure
     here is always about the pair rather than about one arm.
     """
-    baseline, experiment = load(BASELINE_ARM), load(EXPERIMENT_ARM)
+    baseline, experiment = (
+        load(BASELINE_ARM, directory=directory),
+        load(EXPERIMENT_ARM, directory=directory),
+    )
     if baseline.fixture_id != experiment.fixture_id:
         raise ReportError(
             "the two retained reports ran against different golden evaluation sets, so they "

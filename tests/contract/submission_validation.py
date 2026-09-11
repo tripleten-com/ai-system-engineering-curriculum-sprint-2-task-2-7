@@ -125,7 +125,8 @@ def main(root: Path | None = None, *, changed_paths: list[str] | None = None) ->
         if BASELINE_PATH is not None:
             validate_baseline(task_root / BASELINE_PATH)
         validate_changed_paths(
-            _changed_paths(task_root) if changed_paths is None else changed_paths
+            _changed_paths(task_root) if changed_paths is None else changed_paths,
+            task_root=task_root,
         )
     except (SubmissionError, RuntimeError) as exc:
         print(f"verification failed: {exc}", file=sys.stderr)
@@ -178,9 +179,34 @@ def validate_baseline(baseline_path: Path) -> None:
         raise SubmissionError(f"{baseline_path.name} still contains template markers")
 
 
-def validate_changed_paths(paths: list[str]) -> None:
+def validate_changed_paths(paths: list[str], *, task_root: Path | None = None) -> None:
     """Reject changed paths outside this Task's student-editable surfaces."""
     normalized = {PurePosixPath(path.replace("\\", "/")).as_posix() for path in paths}
+    generated = normalized & {".benchmark/baseline.json", ".benchmark/experiment.json"}
+    if generated and task_root is not None:
+        # These are required generated evidence, not extra student-editable code.
+        # Retain both arms and validate their original values; never remeasure here.
+        from tests.benchmark.config import experiment_config
+        from tests.benchmark.reports import ReportError, load_pair
+        from tests.golden import query_ids
+
+        for name in (".benchmark/baseline.json", ".benchmark/experiment.json"):
+            path = task_root / name
+            if (
+                path.is_symlink()
+                or (path.exists() and not path.is_file())
+                or path.resolve() != task_root.resolve() / name
+            ):
+                raise SubmissionError(f"unsafe generated report: {name}")
+        try:
+            _, experiment = load_pair(directory=task_root / ".benchmark")
+            if experiment.query_ids != query_ids():
+                raise ReportError("reports do not describe the published query set")
+            if experiment.config != experiment_config().as_mapping():
+                raise ReportError("experiment report does not match the submitted configuration")
+        except (OSError, ValueError) as exc:
+            raise SubmissionError(f"generated report validation failed: {exc}") from exc
+        normalized -= generated
     protected = sorted(
         path for path in normalized - ALLOWED_PATHS if not path.startswith(ALLOWED_PREFIXES)
     )

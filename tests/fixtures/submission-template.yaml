@@ -1,151 +1,92 @@
-# Coldline - Task 1.1
+# Coldline - Task 2.7
 # File: submission.yaml
-# Edit only answer values in submission.yaml; keep the supplied keys and types.
-# Empty strings, nulls, and placeholder text are incomplete and fail verification.
-# Use submission-sample.yaml for YAML formatting only; do not copy its fictional values.
+# Component: Student answer sheet
+# Purpose: Record one controlled retrieval experiment and its adoption decision.
+# Interacts With: Submission schema, public verifier, experiment checks
+# Sprint/Task: Sprint 2 - Project 2 / Task 2.7
+# Concepts: Controlled experiment, deterministic evaluation, evidence-supported decisions
+# Tools: YAML
+
+# Complete submission.yaml from the evidence sources named beside each answer group.
+# Keep the supplied keys; replace empty strings using each field's stated type.
+# Empty values and placeholder text fail verification.
+# Use submission-sample.yaml for format only; do not copy its fictional values.
 # Do not include secrets, personal data, or local absolute paths.
-# Use your Task 1.1 runtime observations and the numbered lesson architecture map.
 
 answers:
-
-  # Task 1.1 — Step 1: Compose stack and architecture orientation
-  # Record the readiness result from your Task 1.1 runtime workflow.
-  # Reference: the named Task lesson Step and docs/student/task-1-1-baseline.md.
+  # Task 2.7 — Step 2: Controlled retrieval experiment
+  # Tune exactly one parameter and measure quality/latency shifts.
+  # Change one parameter in config/student/retrieval.yaml; keep the other equal
+  # to config/retrieval-baseline.yaml. Measure both configurations on the same
+  # supplied query set. Source: docs/student/task-2-7-contract.md.
   #
-  # runtime_state options (use exact values):
-  # - ready: The required runtime workflow reached its ready state.
-  # - blocked: A problem prevented completion of the required runtime workflow.
-  # Choose one string from the runtime_state options above.
-  runtime_state: ""
-
-  # Task 1.1 — Step 3: Capturing baseline request traces
-  # Identify your baseline run using the identifier printed by poe scenario.
-  # Reference: the named Task lesson Step and docs/student/task-1-1-baseline.md.
-  # Scenario identifier printed by `poe scenario`; 8-100 characters.
-  scenario_id: ""
-
-  # Task 1.1 — Step 1: Compose stack and architecture orientation
-  # Identify all seven numbered components in the lesson architecture map. Use every component
-  # option exactly once.
-  # Reference: the named Task lesson Step and docs/student/task-1-1-baseline.md.
+  # Parameter options (use exact strings):
+  # - top_k: The number of candidates returned after combining the search rankings.
+  # - fusion_weight: The dense search arm's weight when combining rankings; the
+  #   sparse arm carries the remainder. Dense search uses embedding vectors;
+  #   sparse search uses text matching.
   #
-  # component options (use exact values):
-  # - api: The application service that handles HTTP requests.
-  # - redis-streams: The Redis stream used to carry queued jobs.
-  # - worker: The background process that consumes and processes jobs.
-  # - postgresql: The relational database used to persist application records.
-  # - jaeger: The tool used to inspect distributed traces and their spans.
-  # - prometheus: The service that collects and queries time-series metrics.
-  # - grafana: The tool that displays metrics in dashboards.
-  architecture_map:
-    # Name the component at diagram position 1.
-    # Choose one string from the component options above.
-    component_1: ""
-    # Name the component at diagram position 2.
-    # Choose one string from the component options above.
-    component_2: ""
-    # Name the component at diagram position 3.
-    # Choose one string from the component options above.
-    component_3: ""
-    # Name the component at diagram position 4.
-    # Choose one string from the component options above.
-    component_4: ""
-    # Name the component at diagram position 5.
-    # Choose one string from the component options above.
-    component_5: ""
-    # Name the component at diagram position 6.
-    # Choose one string from the component options above.
-    component_6: ""
-    # Name the component at diagram position 7.
-    # Choose one string from the component options above.
-    component_7: ""
+  # Step 2: choose the one parameter above that differs from the baseline.
+  selected_parameter: ""
+  # Step 2: enter its value from config/student/retrieval.yaml as a YAML number.
+  # For top_k, use an integer from 1 to 12; for fusion_weight, a number from 0 to 1.
+  parameter_value: ""
 
-  # Task 1.1 — Step 2: The five application ports
-  # List only the application port interfaces you observed as active in your running configuration.
-  # Reference: the named Task lesson Step and docs/student/task-1-1-baseline.md.
+  # Task 2.7 — Step 1: Controlled retrieval experiment
+  # Establish baseline metrics on golden evaluation set.
+  # Capture the Step 1 baseline with `poe benchmark-baseline` BEFORE changing
+  # anything, then the Step 2 experiment with `poe benchmark-experiment`. Each
+  # command retains one report - .benchmark/baseline.json and
+  # .benchmark/experiment.json - and both are committed with your submission.
+  # Source: docs/student/task-2-7-contract.md, "The two retained reports" and
+  # "How latency is measured".
+  # Recall@K is the fraction of labelled relevant chunks found in the returned
+  # results, averaged over the supplied query set. It must match to three decimals.
+  # p95 is the latency at or below which 95% of measured requests finish. Read
+  # `latency_p95_ms` from the retained report - not p50, not p99. Every value
+  # here is compared with that report exactly, at one decimal place, because it
+  # is compared with the report you captured rather than with a measurement
+  # taken at grading time.
   #
-  # active_ports options (use exact values):
-  # - ModelProvider: The application interface for requesting model output.
-  # - Retriever: The application interface for retrieving relevant context.
-  # - ObjectStore: The application interface for storing and retrieving objects.
-  # - JobQueue: The application interface for publishing and consuming background jobs.
-  # - SecretProvider: The application interface for obtaining configured secrets.
-  # Step 2: List the active application ports you observed, one choice per line.
-  # YAML list: choose 1-5 unique values from the active_ports options above; order does not matter.
-  # Replace every XXX placeholder; add or remove list items as needed.
-  active_ports:
-    - "XXX"
-    - "XXX"
+  # Step 1: baseline recall@k column; number from 0 to 1, to three decimal places.
+  baseline_recall_at_k: ""
+  # Step 2: experiment recall@k column; number from 0 to 1, to three decimal places.
+  experiment_recall_at_k: ""
 
-  # Task 1.1 — Step 3: Capturing baseline request traces
-  # Record the API-side trace identity from your own baseline run in Jaeger.
-  # Reference: the named Task lesson Step and docs/student/task-1-1-baseline.md.
-  # Step 3: Copy the API trace ID from Jaeger; use one lowercase 32-hex value.
-  api_trace_id: ""
+  # Step 1: baseline p95 column; nonnegative number in milliseconds, without "ms".
+  baseline_latency_ms: ""
+  # Step 2: experiment p95 column; nonnegative number in milliseconds, without "ms".
+  experiment_latency_ms: ""
 
-  # Task 1.1 — Step 3: Capturing baseline request traces
-  # Record the worker-side trace identity from your own baseline run in Jaeger.
-  # Reference: the named Task lesson Step and docs/student/task-1-1-baseline.md.
-  # Step 3: Copy the worker trace ID from Jaeger; use one lowercase 32-hex value.
-  worker_trace_id: ""
-
-  # Task 1.1 — Step 3: Capturing baseline request traces
-  # Classify one observed or missing connection using your baseline traces and telemetry. Choose
-  # different expected_behavior and observed_result values.
-  # Reference: the named Task lesson Step and docs/student/task-1-1-baseline.md.
+  # Task 2.7 — Step 3: Controlled retrieval experiment
+  # Analyze judge disagreement, author regression test, and decide.
+  # Use `poe compare` and docs/student/task-2-7-contract.md to compare changes in
+  # deterministic Recall@K and cached judge relevance. Cached judge scores are
+  # supplied comparison evidence; they do not determine the adoption decision.
   #
-  # source_component / target_component options (use exact values):
-  # - api: The application service that handles HTTP requests.
-  # - worker: The background process that consumes and processes jobs.
-  # - redis-streams: The Redis stream used to carry queued jobs.
-  # - postgresql: The relational database used to persist application records.
-  # - model-provider: The component that supplies model output.
-  # - opentelemetry: The instrumentation and context mechanisms used to produce telemetry.
-  # - jaeger: The tool used to inspect distributed traces and their spans.
-  # - prometheus: The service that collects and queries time-series metrics.
-  # - grafana: The tool that displays metrics in dashboards.
+  # Agreement options (use exact strings; movement uses the published resolution):
+  # - agreement: Both signals moved in the same direction.
+  # - disagreement: Both signals moved in opposite directions.
+  # - mixed_or_no_change: Neither signal moved, or only one did.
   #
-  # connection_type options (use exact values):
-  # - http-request: An HTTP request from one component to another.
-  # - database-write: A change persisted to a database.
-  # - queue-publish: A producer placing a job on a queue.
-  # - queue-consume: A consumer receiving a job from a queue.
-  # - model-call: A request for model output.
-  # - trace-context: Trace identity and parent information passed between operations.
-  # - telemetry-export: Sending recorded telemetry to a receiving system.
-  # - metrics-scrape: Collecting metric samples from an exposed endpoint.
-  # - dashboard-query: A dashboard requesting data from its configured source.
+  # Choose one classification above from the comparison output.
+  agreement_classification: ""
+
+  # Adoption options (use exact strings):
+  # - keep: Retain the experimental retrieval configuration.
+  # - revert: Restore the baseline retrieval configuration.
+  # `poe compare` reads your two retained reports and applies the one published
+  # rule in config/adoption-policy.yaml. There is exactly one correct decision
+  # for a valid comparison; it is not a judgment call.
   #
-  # expected_behavior / observed_result options (use exact values):
-  # - same-trace: Source and target spans use the same trace ID.
-  # - separate-traces: Source and target spans use different trace IDs.
-  # - metrics-only: Metrics show each component, but no trace connects them.
-  # - not-observed: The supplied evidence shows no telemetry for the connection.
-  evidence_gap:
-    # Component at the start of the connection.
-    # Choose one string from the source_component / target_component options above.
-    source_component: ""
-    # Component at the receiving end of the connection.
-    # Choose one string from the source_component / target_component options above.
-    target_component: ""
-    # Kind of interaction being examined.
-    # Choose one string from the connection_type options above.
-    connection_type: ""
-    # Trace or metric relationship you expected to find.
-    # Choose one string from the expected_behavior / observed_result options above.
-    expected_behavior: ""
-    # Trace or metric relationship present in your evidence.
-    # Choose one string from the expected_behavior / observed_result options above.
-    observed_result: ""
-
-  # Task 1.1 — Step 3: Capturing baseline request traces
-  # Select one limitation on what your local baseline observations establish.
-  # Reference: the named Task lesson Step and docs/student/task-1-1-baseline.md.
-
-  # fidelity_limitation options (use exact values):
-  # local-compose-only: Local Docker Compose does not prove a managed deployment.
-  # deterministic-model-only: The supplied model adapter does not prove production-provider
-  #   behavior.
-  # no-production-scale: One local scenario does not prove production traffic or resilience.
-  # Choose one string from the fidelity_limitation options above.
-  fidelity_limitation: ""
+  #   keep = (R1 >= R0) and (L1 <= B) and ((R1 > R0) or ((L0 - L1) > T))
+  #
+  # RELEASE GATE. The latency budget B and tolerance T are calibrated and
+  # published by the benchmark owner, and they are NOT published yet. Until they
+  # are, `poe compare` prints BLOCKED here and the check on this field fails for
+  # every submission, correct or not. That is a gate on the Task, not a fault in
+  # your work, and nothing substitutes a default in its place.
+  #
+  # Record the decision the rule gives for your own figures, and say in your
+  # pull request which constants you assumed.
+  adoption_decision: ""

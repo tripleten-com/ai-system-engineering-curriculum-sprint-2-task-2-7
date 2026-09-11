@@ -18,7 +18,7 @@
 
 # The two retained benchmark reports are required run artifacts, not scratch
 # output: the assessed checks grade the recorded answers against them, and the
-# protected job in CI needs them too. So they are committed, and only the rest
+# CMS assessment needs them too. So they are committed, and only the rest
 # of the directory is ignored. They are generated - the harness writes them and
 # nothing else should - which is why they are listed separately from the
 # student-editable paths in docs/student/task-2-7-contract.md.
