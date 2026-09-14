@@ -29,6 +29,39 @@ ROOT = Path(__file__).parents[2]
 SCHEMA = ROOT / "docs/contracts/submission.schema.json"
 
 
+def test_generated_reports_are_validated_separately_from_editable_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A retained pair can be submitted, but malformed reports or extra files cannot."""
+    import json
+
+    from tests.benchmark import config, reports
+    from tests.contract.test_benchmark_reports import _document
+
+    directory = tmp_path / ".benchmark"
+    directory.mkdir()
+    monkeypatch.setattr(config, "experiment_config", lambda: config.RetrievalConfig(5, 0.5))
+    monkeypatch.setattr("tests.golden.query_ids", lambda: ["q-one", "q-two"])
+    for arm in ("baseline", "experiment"):
+        document = _document(arm)
+        if arm == "experiment":
+            document["config"] = config.experiment_config().as_mapping()
+            document["configuration_id"] = reports.configuration_id(document["config"])
+        (directory / f"{arm}.json").write_text(json.dumps(document), encoding="utf-8")
+    paths = [".benchmark/baseline.json", ".benchmark/experiment.json", "submission.yaml"]
+    validate_changed_paths(paths, task_root=tmp_path)
+    with pytest.raises(SubmissionError, match="protected path"):
+        validate_changed_paths(paths)
+    with pytest.raises(SubmissionError, match="protected path"):
+        validate_changed_paths([*paths, ".benchmark/unapproved.py"], task_root=tmp_path)
+    (directory / "experiment.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(SubmissionError, match="generated report validation failed"):
+        validate_changed_paths(paths, task_root=tmp_path)
+    (directory / "experiment.json").unlink()
+    with pytest.raises(SubmissionError, match="Capture it with.*benchmark-experiment"):
+        validate_changed_paths([".benchmark/baseline.json"], task_root=tmp_path)
+
+
 def valid_answers(**overrides: Any) -> dict[str, object]:
     """Return a complete answer sheet describing one plausible experiment."""
     answers: dict[str, Any] = {
@@ -99,7 +132,9 @@ def test_every_permitted_combination_passes_public_validation(
 
 def test_blank_template_fails_with_field_address(tmp_path: Path) -> None:
     """An untouched answer sheet must identify the first incomplete field."""
-    root = _task_root(tmp_path, (ROOT / "submission.yaml").read_text(encoding="utf-8"))
+    root = _task_root(
+        tmp_path, (ROOT / "tests/fixtures/submission-template.yaml").read_text(encoding="utf-8")
+    )
 
     with pytest.raises(SubmissionError, match="answers.selected_parameter"):
         validate_submission(root / "submission.yaml", SCHEMA)
@@ -212,7 +247,9 @@ def test_public_entrypoint_reports_an_incomplete_answer_sheet(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """Catch a verifier entrypoint that skips the real submission contract."""
-    root = _task_root(tmp_path, (ROOT / "submission.yaml").read_text(encoding="utf-8"))
+    root = _task_root(
+        tmp_path, (ROOT / "tests/fixtures/submission-template.yaml").read_text(encoding="utf-8")
+    )
 
     assert main(root, changed_paths=[]) == 1
     assert "answers.selected_parameter is incomplete" in capsys.readouterr().err

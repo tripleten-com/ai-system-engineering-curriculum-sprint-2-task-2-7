@@ -108,9 +108,10 @@ with a measurement taken at grading time — so recording the median where the p
 mistake the check catches: both figures are in the report under their own names, and only one of
 them matches.
 
-The p95 itself is not reproducible between captures. Measured repeatedly on one idle machine, this
-harness produced p95 values from 8.4 ms to 50.6 ms for the *same* configuration: the whole
-distribution moves with whatever else the host is doing. The two arms are captured by separate
+The p95 itself varies between captures. An earlier investigation reported 8.4–50.6 ms for one
+configuration; its full host conditions were not retained with this release calibration. The
+separate 30-capture local calibration reported baseline 6.8–10.5 ms and expanded 6.7–10.2 ms.
+Neither range guarantees what another machine will measure. The two arms are captured by separate
 commands, minutes apart, so that drift sits between them. Nothing here pretends otherwise — it is
 exactly why the published latency tolerance below has to be calibrated from repeated runs on the
 supported environments rather than guessed.
@@ -119,6 +120,11 @@ On this corpus, changing either parameter is expected to leave p95 latency rough
 arms issue the same two queries and fetch the same fixed candidate pool, so only what fusion
 selects differs. The latency axis is measured and recorded anyway, so that a change which *does*
 cost latency would be visible rather than invisible.
+
+Before capture, stop unrelated workloads. If you discover a host interruption before submitting,
+retain the old pair and the reason, then recapture both arms with fresh run IDs under comparable
+conditions. Do not repeatedly rerun just to obtain `keep`, discard an inconvenient measurement,
+or replace the reports used for a decision already submitted. A valid `revert` is a correct outcome.
 
 ## The comparison classification
 
@@ -165,19 +171,19 @@ guarantee rather than a promise about it.
 This is a bounded teaching policy, not a claim that it is the best production decision in every
 setting. The broader trade-off is where Task 2.9 picks the subject up.
 
-### `B` and `T` are not published yet
+### Published teaching constants
 
-The benchmark owner calibrates them from repeated runs on the supported environment profiles and
-publishes them, with the procedure and the variability observed, before release. Until then
-`config/adoption-policy.yaml` records `published: false`, `poe compare` prints `BLOCKED` instead of
-a decision, and the check that grades `answers.adoption_decision` fails for **every** submission,
-correct or not.
+For this local release, `B = 14.0 ms` and `T = 3.8 ms`. The supplied
+`config/adoption-policy.yaml` records the calibration procedure and its measured environment.
+Both runs use recall rounded to three decimal places and latency rounded to one, using half-even
+rounding. The constants are fixed; your own retained reports determine the answer.
 
-That is a release gate on this Task, not a mistake in your work. It is deliberate: grading a
-decision against an invented budget would teach a number nobody stands behind, and defaulting an
-ungradeable comparison to `revert` would award whichever answer happens to be more common. Record
-the decision the rule gives for your own figures, and say in your pull request which constants you
-assumed.
+The budget permits equality (`L1 <= B`); a latency-only improvement must exceed the tolerance.
+Recall loss requires `revert`, even if latency improves. Different computers can produce different
+valid outcomes. These teaching constants make no production latency or environment-parity claim.
+
+If an older or mismatched template reports an unpublished policy, retain both reports and contact
+support. An unavailable policy is an infrastructure error, not a reason to invent a fallback answer.
 
 ## The regression test
 
@@ -233,7 +239,7 @@ affected when the change altered either what was retrieved for it or its determi
 | `test_recorded_latency_metrics_match_the_retained_reports` | Both recorded p95 values against the retained reports, exactly at one decimal place |
 | `test_recorded_classification_matches_the_retained_evidence` | The classification recomputed from the two retained signals |
 | `test_a_regression_test_asserts_the_ranking_of_an_impacted_query` | Your `tests/student/` run, the assertions it recorded, and whether their queries were affected |
-| `test_the_adoption_decision_follows_the_published_rule` | The recorded decision against the published rule. **Blocked until `B` and `T` are published**, and until then it fails for every submission |
+| `test_the_adoption_decision_follows_the_published_rule` | The recorded decision against the published rule, B = 14.0 ms and T = 3.8 ms |
 
 `tests/contract/test_benchmark_reports.py` is separate and assesses nothing: it checks that a
 missing, malformed, stale, or self-inconsistent report is rejected rather than turned into a
