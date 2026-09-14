@@ -137,6 +137,7 @@ experiment-checks = "pytest tests/contract/test_retrieval_experiment.py -m runti
 # The checks measure the running system themselves, so the image has to be
 # built from the current checkout and the corpus has to be ingested first.
 experiment = ["start", "ingest", "experiment-checks"]
+authorization-checkpoint = "pytest tests/contract/test_authorization_checkpoint.py -m runtime"
 student-tests = "pytest tests/student"
 test = ["unit", "contract"]
 preflight = "python infra/scripts/preflight.py"
@@ -152,6 +153,7 @@ verify = [
   "start",
   "ready",
   "ingest",
+  "authorization-checkpoint",
   "smoke",
   "e2e",
   "answers",
