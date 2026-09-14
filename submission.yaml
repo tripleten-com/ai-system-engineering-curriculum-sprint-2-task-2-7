@@ -81,12 +81,9 @@ answers:
   #
   #   keep = (R1 >= R0) and (L1 <= B) and ((R1 > R0) or ((L0 - L1) > T))
   #
-  # RELEASE GATE. The latency budget B and tolerance T are calibrated and
-  # published by the benchmark owner, and they are NOT published yet. Until they
-  # are, `poe compare` prints BLOCKED here and the check on this field fails for
-  # every submission, correct or not. That is a gate on the Task, not a fault in
-  # your work, and nothing substitutes a default in its place.
-  #
-  # Record the decision the rule gives for your own figures, and say in your
-  # pull request which constants you assumed.
+  # This release supplies B = 14.0 ms and T = 3.8 ms in the protected policy.
+  # Use your retained reports and the supplied rounding; do not edit constants.
+  # Keep/revert can differ between machines because measured latency can differ.
+  # If a mismatched template reports an unpublished policy, retain the reports
+  # and contact support rather than inventing a fallback answer.
   adoption_decision: ""

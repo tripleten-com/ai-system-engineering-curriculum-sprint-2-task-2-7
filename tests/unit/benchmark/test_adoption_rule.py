@@ -10,17 +10,10 @@ Sprint/Task:       Sprint 2 — Project 2 / Task 2.7
 Concepts:          Published decision rule, boundary behavior, fail-closed gating
 Tools:             Python 3.12, pytest
 
-These tests qualify the *implementation* of the rule. The constants they use
-are stated here as fixtures, not read from the published policy, so the rule
-can be exercised at and around its boundaries before anyone has calibrated a
-budget.
-
-They are not the calibration qualification. ADR009-R04 requires at least one
-keep case and one revert case qualified end to end against retained reports on
-the supported environment profiles, with the real published constants. That
-remains a release gate and these tests do not discharge it: the file the rule
-reads still records `published: false`, and the check that applies it to a
-submission still fails while it does.
+ADR012-R04 selects B = 14.0 ms and T = 3.8 ms for the local release.
+Synthetic policy values below isolate recall, budget, tolerance and rounding
+boundaries. The supplied-policy test separately pins the reviewed release
+constants. Unpublished policies still fail closed.
 """
 
 from __future__ import annotations
@@ -29,10 +22,8 @@ import pytest
 
 from tests.benchmark import policy
 
-# Stated for these tests only. A budget of 40 ms and a tolerance of 2 ms are
-# plausible for this harness and are deliberately not written into
-# config/adoption-policy.yaml: choosing them there would be inventing the
-# calibration this Task is blocked on.
+# Synthetic values isolate decision boundaries. The separate supplied-policy
+# test below verifies the calibrated release values selected by ADR012-R04.
 BUDGET_MS = 40.0
 TOLERANCE_MS = 2.0
 
@@ -112,13 +103,18 @@ def test_every_decision_carries_a_readable_reason() -> None:
     assert "budget" in verdict.reason
 
 
-def test_the_supplied_policy_file_is_not_published_yet() -> None:
-    """The release gate is real: the rule refuses to decide until it is calibrated.
+def test_the_supplied_policy_uses_the_reviewed_local_release_constants() -> None:
+    """Policy publication deliberately changes this pin alongside the supplied file."""
+    supplied = policy.published_policy()
+    assert supplied.latency_budget_ms == 14.0
+    assert supplied.latency_tolerance_ms == 3.8
+    assert supplied.recall_places == 3
+    assert supplied.latency_places == 1
 
-    This is the state the template ships in, and it is asserted so that
-    publishing constants can never happen silently. Calibrating B and T means
-    changing this test along with the file, deliberately.
-    """
+
+def test_an_unpublished_policy_still_blocks(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Publishing this release must not turn an unavailable policy into a default."""
+    monkeypatch.setattr(policy, "_document", lambda: {"published": False})
     with pytest.raises(policy.PolicyUnpublished):
         policy.published_policy()
 

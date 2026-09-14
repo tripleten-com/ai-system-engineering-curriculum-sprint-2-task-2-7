@@ -175,6 +175,24 @@ The application source lives in five flat packages:
 adapters. Process settings live in `src/api/config.py` and `src/worker/config.py`; other modules
 receive settings or collaborators through function and constructor arguments.
 
+## Inspect database and object-store evidence
+
+After `poe ingest`, use the PostgreSQL client already installed in the supplied container.
+These read-only commands show the table definitions and the stored chunk representations:
+
+```shell
+docker compose exec -T postgres psql -U coldline -d coldline -c "\d documents"
+docker compose exec -T postgres psql -U coldline -d coldline -c "\d chunks"
+docker compose exec -T postgres psql -U coldline -d coldline -c "SELECT chunk_id, document_id, chunk_index, vector_dims(embedding), search_document, tenant_id, access_tier FROM chunks ORDER BY chunk_id;"
+```
+
+Compare the results with `infra/postgres/002_retrieval_corpus.sql` and the supplied corpus
+fixtures. From Task 2.6 onward, also compare `poe migrate-current` and the files in
+`migrations/versions/` with the live schema. For object-store evidence, use `GET /api/v1/corpus/objects?prefix=corpus/`
+at the API URL above and inspect `docker compose logs localstack`. The initializer provisions
+resources and uploads the supplied objects; `poe ingest` loads the searchable database rows.
+Use the Task lesson to decide which observations to collect and which changes are permitted.
+
 ## The five ports
 
 Find the available interfaces in `src/ports/`. A port describes an application capability; an
@@ -299,7 +317,8 @@ GitHub grading secrets. Follow the Task lesson's instructor-review and progressi
 Task 2.7 asks you to change **exactly one** approved retrieval parameter, measure both
 configurations against the same golden evaluation set, compare the authoritative deterministic
 metric with the comparison-only cached judge evidence, add one regression test for a query your
-change affected, and record an adoption decision your evidence supports.
+change affected, and record the decision the supplied policy gives. Use the supplied policy: B = 14.0 ms and T = 3.8 ms. Keep both reports and record the
+decision calculated from your measurements; do not edit the supplied constants.
 
 The harness, the golden set, the labels, the cached judge evidence, and the decision rule are all
 supplied. What you contribute is one parameter value, one regression test, two retained reports,
@@ -309,10 +328,10 @@ The decision is not a judgment call. One rule is published in `config/adoption-p
 gives exactly one answer for a valid comparison — see
 [`docs/student/task-2-7-contract.md`](docs/student/task-2-7-contract.md). Its two constants, the
 latency budget `B` and the latency tolerance `T`, are calibrated and published by the benchmark
-owner before release. **They are not published yet**, so `poe compare` prints `BLOCKED` where the
-decision would be and the check that grades `answers.adoption_decision` fails for every submission.
-That is a release gate on this Task rather than a fault in your work, and nothing substitutes a
-default in its place.
+owner before release. **For this local release, B = 14.0 ms and T = 3.8 ms.** The supplied policy records the
+calibration method and environment. `poe compare` calculates the decision from your retained
+reports. A missing or unpublished policy in a mismatched template remains an infrastructure
+error: retain the reports and contact support; do not guess a fallback answer.
 
 These paths are student-editable:
 

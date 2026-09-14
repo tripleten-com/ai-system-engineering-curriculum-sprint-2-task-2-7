@@ -152,7 +152,7 @@ def published_policy() -> AdoptionPolicy:
     """Return the published rule's constants, or say which gate is unmet.
 
     Raises `PolicyUnpublished` while the benchmark owner has not calibrated
-    `B` and `T`, which is the state this template ships in.
+    `B` and `T`. This local release supplies both; an unavailable policy still blocks.
     """
     document = _document()
     if document.get("published") is not True:
